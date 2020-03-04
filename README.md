@@ -253,3 +253,60 @@ Example:
         clean_up=1 #removes theVoid directory with individual analysis files, 1 = yes, 0 = no
         TMP= #specify a directory other than the system default temporary directory for temporary files
         
+ ### 2. Make .sh file and .sub file and submit to HTcondor
+ 
+ 1. Make .sh file 
+ 
+        nano maker1.sh
+        
+        #!/bin/bash
+        mkdir -p Maker                                          ## make directory for maker
+        tar -xzf Maker.tar.gz -C Maker                          ## untar maker environment
+        source Maker/bin/activate                               ## activate environment
+        conda-unpack                                            ## unpack environment
+
+        tar -xzf Joinvillea.tar.gz                              ## untar genome file
+        tar -xzf Streptoch_prot_fa.tar.gz                       ## untar protein fasta
+        tar -xzf Streptoch_RNA_fa.tar.gz                        ## untar transcript fasta
+        maker                                                   ## run maker
+        tar -czf maker_output.tar.gz Joinvillea.maker.output/   ## tarball output for transfer back to home
+
+2. Make .sub file
+
+        nano maker.sub
+        
+        # Specify the HTCondor Universe (vanilla is the default and is used
+        #  for almost all jobs), the desired name of the HTCondor log file,
+        #  and the desired name of the standard error file.  
+        #  Wherever you see $(Cluster), HTCondor will insert the queue number
+        #  assigned to this set of jobs at the time of submission.
+        universe = vanilla
+        log = maker_$(Cluster).log
+        error = maker_$(Cluster)_$(Process).err
+        # Specify your executable (single binary or a script that runs several
+        #  commands), arguments, and a files for HTCondor to store standard
+        #  output (or "screen output").
+        #  $(Process) will be a integer number for each job, starting with "0"
+        #  and increasing for the relevant number of jobs.
+        executable = maker1.sh
+        # arguments = 
+        # Specify that HTCondor should transfer files to and from the
+        #  computer where each job runs. The last of these lines *would* be
+        #  used if there were any other files needed for the executable to run.
+        should_transfer_files = YES
+        when_to_transfer_output = ON_EXIT
+        #initialdir = $(bl)
+        transfer_input_files = j1.1.tar.gz, Maker.tar.gz, combined_fasta.tar.gz,        Streptochaeta_maker_max_transcripts_V1.fasta.mod.fa.tar.gz
+        #
+        # Tell HTCondor what amount of compute resources
+        #  each job will need on the computer where it runs.
+        request_cpus = 1
+        request_memory = 50GB
+        request_disk = 50GB
+        ##
+        # Tell condor you wan to queue up files in a list
+        queue 1
+        
+ 3. Submit job!
+ 
+        condor_submit maker.sub
