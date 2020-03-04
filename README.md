@@ -1,6 +1,6 @@
 # Maker
 
-## Installing Anaconda and packages needed
+## Installing Anaconda and Maker, configure environment
 
 ### 1. Install anaconda:
 
@@ -112,7 +112,11 @@ To add channels:
         
 * This will give you a tar.gz file of your environment which can be transferred and called by the CHTC
 
-### 5. Get control files with Maker
+## Running Maker on CHTC
+
+### 1. Get control files with Maker
+
+* This can be done in home directory
 
 1. Activate maker:
 
