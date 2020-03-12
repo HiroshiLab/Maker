@@ -304,6 +304,8 @@ Example:
         request_memory = 50GB
         request_disk = 50GB
         ##
+        # tell condor to copy your environment
+        getenv=true
         # Tell condor you wan to queue up files in a list
         queue 1
         
